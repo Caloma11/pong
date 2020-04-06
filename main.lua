@@ -27,11 +27,13 @@ function love.load()
 
     smallFont = love.graphics.newFont('font.ttf', 8) -- Sets Font
     scoreFont = love.graphics.newFont('font.ttf', 16) -- https://www.dafont.com/press-start-2p.font
+    victoryFont = love.graphics.newFont('font.ttf', 24 )
 
     player1Score = 0
     player2Score = 0
 
     servingPlayer = math.random(2) == 1 and 1 or 2
+    winningPlayer = 0
 
     paddle1 = Paddle(5, 20, 5, 20)
     paddle2 = Paddle(VIRTUAL_WIDTH - 10, VIRTUAL_HEIGHT - 40, 5, 20)
@@ -89,7 +91,12 @@ function love.update(dt) -- dt is delta time
             servingPlayer = 1
             ball:reset()
             ball.dx = 100 -- Defines direction of service
-            gameState = 'serve'
+            if player2Score >= 3 then
+                gameState = 'victory'
+                winningPlayer = 2
+            else
+                gameState = 'serve'
+            end
         end
 
         if  ball.x >= VIRTUAL_WIDTH then
@@ -97,7 +104,12 @@ function love.update(dt) -- dt is delta time
             servingPlayer = 2
             ball:reset()
             ball.dx = -100 -- Defines direction of service
-            gameState = 'serve'
+            if player1Score >= 3 then
+                gameState = 'victory'
+                winningPlayer = 1
+            else
+                gameState = 'serve'
+            end
         end
 
 
@@ -148,6 +160,10 @@ function love.keypressed(key) -- Called on each frame
     elseif key == 'enter' or key == 'return' then -- waits for enter to  serve
         if gameState == 'start' then
             gameState = 'serve'
+        elseif gameState == 'victory' then
+            gameState = 'start'
+            player1Score = 0
+            player2Score = 0
         elseif gameState == 'serve' then
             gameState = 'play'
         end
@@ -190,6 +206,23 @@ function love.draw()
         love.graphics.printf("Press enter to serve.",
             0,                                  -- Starting X
             22,                                 -- Starting Y (VIRTUAL_HEIGHT / 2 - 6 would be center)
+            VIRTUAL_WIDTH,                      -- Center reference
+            'center')
+
+    elseif gameState == 'victory' then
+        love.graphics.setFont(victoryFont)
+        love.graphics.setColor(225 / 255, 242 / 255, 254 / 255, 0.7)
+        love.graphics.printf("Player " .. tostring(winningPlayer) .. "wins!",
+            0,                                  -- Starting X
+            20,                                 -- Starting Y (VIRTUAL_HEIGHT / 2 - 6 would be center)
+            VIRTUAL_WIDTH,                      -- Center reference
+            'center')
+
+        love.graphics.setColor(225 / 255, 242 / 255, 254 / 255, 0.4)
+        love.graphics.setFont(smallFont)
+        love.graphics.printf("Press enter to restart.",
+            0,                                  -- Starting X
+            62,                                 -- Starting Y (VIRTUAL_HEIGHT / 2 - 6 would be center)
             VIRTUAL_WIDTH,                      -- Center reference
             'center')
     end
