@@ -31,17 +31,24 @@ function love.load()
     player1Score = 0
     player2Score = 0
 
+    servingPlayer = math.random(2) == 1 and 1 or 2
+
     paddle1 = Paddle(5, 20, 5, 20)
     paddle2 = Paddle(VIRTUAL_WIDTH - 10, VIRTUAL_HEIGHT - 40, 5, 20)
 
     ball = Ball(VIRTUAL_WIDTH / 2 - 2, VIRTUAL_HEIGHT / 2 - 2, 4, 4)
 
-    PADDLE_SPEED = 200
-
     ball:reset()
 
-    ballDX = math.random(2) == 1 and -100 or 100  -- Delta X
-    ballDY = math.random(-50, 50) -- Delta Y
+    if servingPlayer == 1 then
+        ball.dx = 100
+    else
+        ball.dx = -100
+    end
+
+
+    PADDLE_SPEED = 200
+
 
     gameState = 'start'
 
@@ -61,19 +68,6 @@ end
 function love.update(dt) -- dt is delta time
     if gameState == 'play' then
 
-        if ball.x <= 0 then
-            player2Score = player2Score + 1
-            ball:reset()
-            gameState = 'start'
-        end
-
-        if  ball.x >= VIRTUAL_WIDTH - 4 then
-            player1Score = player1Score + 1
-            ball:reset()
-            gameState = 'start'
-        end
-
-
         if ball:collides(paddle1) then
             -- deflect ball to the right
             colided1 = true
@@ -90,6 +84,23 @@ function love.update(dt) -- dt is delta time
             colided2 = false
         end
 
+        if ball.x <= 0 then
+            player2Score = player2Score + 1
+            servingPlayer = 1
+            ball:reset()
+            ball.dx = 100 -- Defines direction of service
+            gameState = 'serve'
+        end
+
+        if  ball.x >= VIRTUAL_WIDTH then
+            player1Score = player1Score + 1
+            servingPlayer = 2
+            ball:reset()
+            ball.dx = -100 -- Defines direction of service
+            gameState = 'serve'
+        end
+
+
         if ball.y <= 0 then
             ball.dy = -ball.dy -- deflects ball down if hits upper wall
             ball.y = 2
@@ -101,7 +112,7 @@ function love.update(dt) -- dt is delta time
         end
 
 
-            ball:update(dt)  -- move the ball 'randomly'
+        ball:update(dt)  -- move the ball 'randomly'
 
 
         paddle1:update(dt)
@@ -136,10 +147,9 @@ function love.keypressed(key) -- Called on each frame
         love.event.quit()
     elseif key == 'enter' or key == 'return' then -- waits for enter to  serve
         if gameState == 'start' then
+            gameState = 'serve'
+        elseif gameState == 'serve' then
             gameState = 'play'
-        elseif gameState == 'play' then
-            gameState = 'start'
-            ball:reset()
         end
     end
 end
@@ -158,26 +168,50 @@ function love.draw()
 
 
     if gameState == 'start' then
-        love.graphics.printf("Press enter to start!",
-            0,                               -- Starting X
-            10,                                -- Starting Y (VIRTUAL_HEIGHT / 2 - 6 would be center)
-            VIRTUAL_WIDTH,                   -- Center reference
-            'center')                        -- Aligment mode
+        love.graphics.printf("Welcome to Pong!",
+            0,                                  -- Starting X
+            10,                                 -- Starting Y (VIRTUAL_HEIGHT / 2 - 6 would be center)
+            VIRTUAL_WIDTH,                      -- Center reference
+            'center')                           -- Aligment mode
+
+        love.graphics.printf("Press enter to play.",
+            0,                                  -- Starting X
+            22,                                 -- Starting Y (VIRTUAL_HEIGHT / 2 - 6 would be center)
+            VIRTUAL_WIDTH,                      -- Center reference
+            'center')                           -- Aligment mode
+
+    elseif gameState == 'serve' then
+        love.graphics.printf("Player " .. tostring(servingPlayer) .. "'s turn!",
+            0,                                  -- Starting X
+            10,                                 -- Starting Y (VIRTUAL_HEIGHT / 2 - 6 would be center)
+            VIRTUAL_WIDTH,                      -- Center reference
+            'center')                           -- Aligment mode
+
+        love.graphics.printf("Press enter to serve.",
+            0,                                  -- Starting X
+            22,                                 -- Starting Y (VIRTUAL_HEIGHT / 2 - 6 would be center)
+            VIRTUAL_WIDTH,                      -- Center reference
+            'center')
     end
+
+
 
     love.graphics.setColor(255 / 255, 225 / 255, 198 / 255, 1)
     love.graphics.setFont(scoreFont) -- Makes scoreFont the active font
     love.graphics.print(player1Score, VIRTUAL_WIDTH / 2 - 50, VIRTUAL_HEIGHT / 3) -- Print scores
     love.graphics.print(player2Score, VIRTUAL_WIDTH / 2 + 30, VIRTUAL_HEIGHT / 3)
 
+    paddle1:renderFilled()
+    paddle2:renderFilled()
+
     -- if colided1  == true then
-        paddle1:renderFilled()
+        -- paddle1:renderFilled()
     -- else
         -- paddle1:render()
     -- end
 
     -- if colided2  == true then
-        paddle2:renderFilled()
+        -- paddle2:renderFilled()
     -- else
         -- paddle2:render()
     -- end
