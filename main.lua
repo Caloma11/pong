@@ -24,10 +24,21 @@ function love.load()
     love.graphics.setDefaultFilter('nearest', 'nearest')
 
 
+    -- Sets the fonts
 
     smallFont = love.graphics.newFont('font.ttf', 8) -- Sets Font
     scoreFont = love.graphics.newFont('font.ttf', 16) -- https://www.dafont.com/press-start-2p.font
     victoryFont = love.graphics.newFont('font.ttf', 24 )
+
+    -- Sets the sounds
+
+    sounds = {
+        ['paddle_hit'] = love.audio.newSource('paddleHit.wav', 'static'),
+        ['score_hit'] = love.audio.newSource('scoreHit.wav', 'static'),
+        ['wall_hit'] = love.audio.newSource('wallHit.wav', 'static'),
+        ['victory'] = love.audio.newSource('victory.wav', 'static')
+    }
+
 
     player1Score = 0
     player2Score = 0
@@ -72,6 +83,7 @@ function love.update(dt) -- dt is delta time
 
         if ball:collides(paddle1) then
             -- deflect ball to the right
+            sounds['paddle_hit']:play()
             colided1 = true
             ball.dx = -ball.dx
         else
@@ -80,6 +92,7 @@ function love.update(dt) -- dt is delta time
 
         if ball:collides(paddle2) then
             -- deflect ball to the lefts
+            sounds['paddle_hit']:play()
             ball.dx = -ball.dx
             colided2 = true
         else
@@ -88,11 +101,13 @@ function love.update(dt) -- dt is delta time
 
         if ball.x <= 0 then
             player2Score = player2Score + 1
+            sounds['score_hit']:play()
             servingPlayer = 1
             ball:reset()
             ball.dx = 100 -- Defines direction of service
             if player2Score >= 3 then
                 gameState = 'victory'
+                sounds['victory']:play()
                 winningPlayer = 2
             else
                 gameState = 'serve'
@@ -101,11 +116,13 @@ function love.update(dt) -- dt is delta time
 
         if  ball.x >= VIRTUAL_WIDTH then
             player1Score = player1Score + 1
+            sounds['score_hit']:play()
             servingPlayer = 2
             ball:reset()
             ball.dx = -100 -- Defines direction of service
             if player1Score >= 3 then
                 gameState = 'victory'
+                sounds['victory']:play()
                 winningPlayer = 1
             else
                 gameState = 'serve'
@@ -114,11 +131,13 @@ function love.update(dt) -- dt is delta time
 
 
         if ball.y <= 0 then
+            sounds['wall_hit']:play()
             ball.dy = -ball.dy -- deflects ball down if hits upper wall
             ball.y = 2
         end
 
         if ball.y >= VIRTUAL_HEIGHT - 4 then
+            sounds['wall_hit']:play()
             ball.dy = -ball.dy -- deflects ball up if hits lower wall
             ball.y = VIRTUAL_HEIGHT - 6
         end
