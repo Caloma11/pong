@@ -17,9 +17,13 @@ require 'Ball'
 
 function love.load()
 
+    love.window.setTitle('Pong')
+
     math.randomseed(os.time())
 
     love.graphics.setDefaultFilter('nearest', 'nearest')
+
+
 
     smallFont = love.graphics.newFont('font.ttf', 8) -- Sets Font
     scoreFont = love.graphics.newFont('font.ttf', 16) -- https://www.dafont.com/press-start-2p.font
@@ -55,60 +59,60 @@ end
 
 
 function love.update(dt) -- dt is delta time
+    if gameState == 'play' then
+        if ball:collides(paddle1) then
+            -- deflect ball to the right
+            colided1 = true
+            ball.dx = -ball.dx
+        else
+            colided1 = false
+        end
 
-    if ball:collides(paddle1) then
-        -- deflect ball to the right
-        colided1 = true
-        ball.dx = -ball.dx
-    else
-        colided1 = false
+        if ball:collides(paddle2) then
+            -- deflect ball to the lefts
+            ball.dx = -ball.dx
+            colided2 = true
+        else
+            colided2 = false
+        end
+
+        if ball.y <= 0 then
+            ball.dy = -ball.dy -- deflects ball down if hits upper wall
+            ball.y = 2
+        end
+
+        if ball.y >= VIRTUAL_HEIGHT - 4 then
+            ball.dy = -ball.dy -- deflects ball up if hits lower wall
+            ball.y = VIRTUAL_HEIGHT - 6
+        end
+
+
+            ball:update(dt)  -- move the ball 'randomly'
+
+
+        paddle1:update(dt)
+        paddle2:update(dt)
+
+        -- Player 1 Movement
+        if love.keyboard.isDown('w') then
+            paddle1.dy = -PADDLE_SPEED
+        elseif love.keyboard.isDown('s') then
+            paddle1.dy = PADDLE_SPEED
+        else
+            paddle1.dy = 0
+        end
+
+        -- Player 2 movement
+
+        if  love.keyboard.isDown('up') then
+            paddle2.dy = -PADDLE_SPEED
+        elseif love.keyboard.isDown('down') then
+            paddle2.dy = PADDLE_SPEED
+        else
+            paddle2.dy = 0
+        end
+
     end
-
-    if ball:collides(paddle2) then
-        -- deflect ball to the lefts
-        ball.dx = -ball.dx
-        colided2 = true
-    else
-        colided2 = false
-    end
-
-    if ball.y <= 0 then
-        ball.dy = -ball.dy -- deflects ball down if hits upper wall
-        ball.y = 2
-    end
-
-    if ball.y >= VIRTUAL_HEIGHT - 4 then
-        ball.dy = -ball.dy -- deflects ball up if hits lower wall
-        ball.y = VIRTUAL_HEIGHT - 6
-    end
-
-    if gameState == 'play' then -- move the ball 'randomly'
-        ball:update(dt)
-    end
-
-    paddle1:update(dt)
-    paddle2:update(dt)
-
-    -- Player 1 Movement
-    if love.keyboard.isDown('w') then
-        paddle1.dy = -PADDLE_SPEED
-    elseif love.keyboard.isDown('s') then
-        paddle1.dy = PADDLE_SPEED
-    else
-        paddle1.dy = 0
-    end
-
-    -- Player 2 movement
-
-    if  love.keyboard.isDown('up') then
-        paddle2.dy = -PADDLE_SPEED
-    elseif love.keyboard.isDown('down') then
-        paddle2.dy = PADDLE_SPEED
-    else
-        paddle2.dy = 0
-    end
-
-
 end
 
 
@@ -135,6 +139,8 @@ function love.draw()
 
     love.graphics.clear(66 / 255, 39 / 255, 59 / 255, 1) -- Sets background color
 
+    love.graphics.setColor(255 / 255, 225 / 255, 198 / 255, 1)
+
     love.graphics.setFont(smallFont) -- Makes smallFont the active font
 
     if gameState == 'start' then
@@ -155,18 +161,17 @@ function love.draw()
     love.graphics.print(player1Score, VIRTUAL_WIDTH / 2 - 50, VIRTUAL_HEIGHT / 3) -- Print scores
     love.graphics.print(player2Score, VIRTUAL_WIDTH / 2 + 30, VIRTUAL_HEIGHT / 3)
 
+    -- if colided1  == true then
+        paddle1:renderFilled()
+    -- else
+        -- paddle1:render()
+    -- end
 
-    if colided1  == true then
-        paddle1:render_filled()
-    else
-        paddle1:render()
-    end
-
-    if colided2  == true then
-        paddle2:render_filled()
-    else
-        paddle2:render()
-    end
+    -- if colided2  == true then
+        paddle2:renderFilled()
+    -- else
+        -- paddle2:render()
+    -- end
 
     ball:render(VIRTUAL_WIDTH / 2 - 2, VIRTUAL_HEIGHT / 2 - 2, 5, 5)
 
