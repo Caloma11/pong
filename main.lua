@@ -24,13 +24,10 @@ function love.load()
     love.graphics.setDefaultFilter('nearest', 'nearest')
 
 
-    -- Sets the fonts
 
     smallFont = love.graphics.newFont('font.ttf', 8) -- Sets Font
     scoreFont = love.graphics.newFont('font.ttf', 16) -- https://www.dafont.com/press-start-2p.font
     victoryFont = love.graphics.newFont('font.ttf', 24 )
-
-    -- Sets the sounds
 
     sounds = {
         ['paddle_hit'] = love.audio.newSource('paddleHit.wav', 'static'),
@@ -54,9 +51,9 @@ function love.load()
     ball:reset()
 
     if servingPlayer == 1 then
-        ball.dx = 100
+        ball.dx = 175
     else
-        ball.dx = -100
+        ball.dx = -175
     end
 
 
@@ -104,7 +101,7 @@ function love.update(dt) -- dt is delta time
             sounds['score_hit']:play()
             servingPlayer = 1
             ball:reset()
-            ball.dx = 100 -- Defines direction of service
+            ball.dx = 175 -- Defines direction of service
             if player2Score >= 3 then
                 gameState = 'victory'
                 sounds['victory']:play()
@@ -119,7 +116,7 @@ function love.update(dt) -- dt is delta time
             sounds['score_hit']:play()
             servingPlayer = 2
             ball:reset()
-            ball.dx = -100 -- Defines direction of service
+            ball.dx = -175 -- Defines direction of service
             if player1Score >= 3 then
                 gameState = 'victory'
                 sounds['victory']:play()
@@ -131,14 +128,14 @@ function love.update(dt) -- dt is delta time
 
 
         if ball.y <= 0 then
-            sounds['wall_hit']:play()
             ball.dy = -ball.dy -- deflects ball down if hits upper wall
+            sounds['wall_hit']:play()
             ball.y = 2
         end
 
         if ball.y >= VIRTUAL_HEIGHT - 4 then
-            sounds['wall_hit']:play()
             ball.dy = -ball.dy -- deflects ball up if hits lower wall
+            sounds['wall_hit']:play()
             ball.y = VIRTUAL_HEIGHT - 6
         end
 
@@ -160,12 +157,25 @@ function love.update(dt) -- dt is delta time
 
         -- Player 2 movement
 
-        if  love.keyboard.isDown('up') then
-            paddle2.dy = -PADDLE_SPEED
-        elseif love.keyboard.isDown('down') then
-            paddle2.dy = PADDLE_SPEED
+        if ball.dx > 0 then
+            if ball.y < paddle2.y then
+                paddle2.dy = -PADDLE_SPEED / math.random(12)
+            elseif ball.y > paddle2.y then
+                paddle2.dy = PADDLE_SPEED / math.random(12)
+            else
+                paddle2.dy = 0
+            end
         else
-            paddle2.dy = 0
+            if paddle2.y < 20 then
+                if paddle2.dy < 0 then
+                    paddle2.dy = -paddle2.dy
+                end
+            else
+                if paddle2.y > VIRTUAL_HEIGHT - 60 then
+                    paddle2.dy = -paddle2.dy
+                end
+            end
+
         end
 
     end

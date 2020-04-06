@@ -37,7 +37,7 @@ function Ball:reset()
     self.x = VIRTUAL_WIDTH / 2 - 2
     self.y = VIRTUAL_HEIGHT / 2 - 2
 
-    self.dx = math.random(2) == 1 and -100 or 100  -- Delta X (velocity)
+    self.dx = math.random(2) == 1 and -175 or 175  -- Delta X (velocity)
     self.dy = math.random(-50, 50) -- Delta Y (velocity)
 end
 
