@@ -7,9 +7,11 @@ VIRTUAL_WIDTH = 426
 VIRTUAL_HEIGHT = 240
 
 
+Class = require 'class' -- https://github.com/vrld/hump/blob/master/class.lua
+push = require 'push' -- https://github.com/Ulydev/push
 
-push = require 'push'
-
+require 'Paddle'
+require 'Ball'
 
 -- Runs on start up (initializer)
 
@@ -20,18 +22,19 @@ function love.load()
     love.graphics.setDefaultFilter('nearest', 'nearest')
 
     smallFont = love.graphics.newFont('font.ttf', 8) -- Sets Font
-    scoreFont = love.graphics.newFont('font.ttf', 16)
+    scoreFont = love.graphics.newFont('font.ttf', 16) -- https://www.dafont.com/press-start-2p.font
 
     player1Score = 0
     player2Score = 0
 
-    PLAYER1Y = 20
-    PLAYER2Y = VIRTUAL_HEIGHT - 40
+    paddle1 = Paddle(5, 20, 5, 20)
+    paddle2 = Paddle(VIRTUAL_WIDTH - 10, VIRTUAL_HEIGHT - 40, 5, 20)
+
+    ball = Ball()
 
     PADDLE_SPEED = 200
 
-    ballX = VIRTUAL_WIDTH / 2 - 2
-    ballY = VIRTUAL_HEIGHT / 2 - 2
+    ball:reset()
 
     ballDX = math.random(2) == 1 and -100 or 100  -- Delta X
     ballDY = math.random(-50, 50) -- Delta Y
@@ -51,36 +54,34 @@ function love.load()
 end
 
 
-
 function love.update(dt) -- dt is delta time
 
+    paddle1:update(dt)
+    paddle2:update(dt)
+
     -- Player 1 Movement
-
     if love.keyboard.isDown('w') then
-
-        PLAYER1Y = math.max(2, PLAYER1Y - PADDLE_SPEED * dt)
+        paddle1.dy = -PADDLE_SPEED
     elseif love.keyboard.isDown('s') then
-
-        PLAYER1Y = math.min(VIRTUAL_HEIGHT - 20 - 2, PLAYER1Y + PADDLE_SPEED * dt)
+        paddle1.dy = PADDLE_SPEED
+    else
+        paddle1.dy = 0
     end
 
     -- Player 2 movement
 
     if  love.keyboard.isDown('up') then
-
-        PLAYER2Y = math.max(2, PLAYER2Y - PADDLE_SPEED * dt)
+        paddle2.dy = -PADDLE_SPEED
     elseif love.keyboard.isDown('down') then
-
-        PLAYER2Y = math.min(VIRTUAL_HEIGHT - 20 - 2, PLAYER2Y + PADDLE_SPEED * dt)
+        paddle2.dy = PADDLE_SPEED
+    else
+        paddle2.dy = 0
     end
 
     if gameState == 'play' then -- move the ball 'randomly'
-        ballX = ballX + ballDX * dt
-        ballY = ballY + ballDY * dt
+        ball:update(dt)
     end
 end
-
-
 
 
 function love.keypressed(key) -- Called on each frame
@@ -91,18 +92,11 @@ function love.keypressed(key) -- Called on each frame
         if gameState == 'start' then
             gameState = 'play'
         elseif gameState == 'play' then
-
             gameState = 'start'
-
-            ballX = VIRTUAL_WIDTH / 2 - 2
-            ballY = VIRTUAL_HEIGHT / 2 - 2
-
-            ballDX = math.random(2) == 1 and -100 or 100  -- Delta X
-            ballDY = math.random(-50, 50) -- Delta Y
+            ball:reset()
         end
     end
 end
-
 
 
 -- Called after updpate, literally draws
@@ -113,12 +107,11 @@ function love.draw()
 
     love.graphics.clear(66 / 255, 39 / 255, 59 / 255, 1) -- Sets background color
 
-    love.graphics.rectangle('fill', ballX, ballY, 4 , 4) -- Sets the 'ball' in the middle
 
-    love.graphics.rectangle('line', 5, PLAYER1Y, 5, 20) -- Renders left paddle
+    paddle1:render()
+    paddle2:render()
 
-    love.graphics.rectangle('line', VIRTUAL_WIDTH - 10, PLAYER2Y, 5, 20) -- Renders right paddle
-
+    ball:render(VIRTUAL_WIDTH / 2 - 2, VIRTUAL_HEIGHT / 2 - 2, 5, 5)
 
     love.graphics.setFont(smallFont) -- Makes smallFont the active font
 
