@@ -241,7 +241,7 @@ function love.draw()
     elseif gameState == 'victory' then
         love.graphics.setFont(victoryFont)
         love.graphics.setColor(225 / 255, 242 / 255, 254 / 255, 0.7)
-        love.graphics.printf("Player " .. tostring(winningPlayer) .. "wins!",
+        love.graphics.printf("Player" .. tostring(winningPlayer) .. " wins!",
             0,                                  -- Starting X
             20,                                 -- Starting Y (VIRTUAL_HEIGHT / 2 - 6 would be center)
             VIRTUAL_WIDTH,                      -- Center reference
