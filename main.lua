@@ -139,24 +139,19 @@ function love.draw()
 
     love.graphics.clear(66 / 255, 39 / 255, 59 / 255, 1) -- Sets background color
 
-    love.graphics.setColor(255 / 255, 225 / 255, 198 / 255, 1)
-
+    love.graphics.setColor(225 / 255, 242 / 255, 254 / 255, 0.4)
     love.graphics.setFont(smallFont) -- Makes smallFont the active font
 
+
     if gameState == 'start' then
-        love.graphics.printf("Hello, start!",
+        love.graphics.printf("Press enter to start!",
             0,                               -- Starting X
             10,                                -- Starting Y (VIRTUAL_HEIGHT / 2 - 6 would be center)
             VIRTUAL_WIDTH,                   -- Center reference
             'center')                        -- Aligment mode
-    elseif gameState == 'play' then
-            love.graphics.printf("Hello, play!",
-            0,                               -- Starting X
-            10,                                -- Starting Y (VIRTUAL_HEIGHT / 2 - 6 would be center)
-            VIRTUAL_WIDTH,                   -- Center reference
-            'center')
     end
 
+    love.graphics.setColor(255 / 255, 225 / 255, 198 / 255, 1)
     love.graphics.setFont(scoreFont) -- Makes scoreFont the active font
     love.graphics.print(player1Score, VIRTUAL_WIDTH / 2 - 50, VIRTUAL_HEIGHT / 3) -- Print scores
     love.graphics.print(player2Score, VIRTUAL_WIDTH / 2 + 30, VIRTUAL_HEIGHT / 3)
