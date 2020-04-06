@@ -30,7 +30,7 @@ function love.load()
     paddle1 = Paddle(5, 20, 5, 20)
     paddle2 = Paddle(VIRTUAL_WIDTH - 10, VIRTUAL_HEIGHT - 40, 5, 20)
 
-    ball = Ball()
+    ball = Ball(VIRTUAL_WIDTH / 2 - 2, VIRTUAL_HEIGHT / 2 - 2, 4, 4)
 
     PADDLE_SPEED = 200
 
@@ -56,6 +56,36 @@ end
 
 function love.update(dt) -- dt is delta time
 
+    if ball:collides(paddle1) then
+        -- deflect ball to the right
+        colided1 = true
+        ball.dx = -ball.dx
+    else
+        colided1 = false
+    end
+
+    if ball:collides(paddle2) then
+        -- deflect ball to the lefts
+        ball.dx = -ball.dx
+        colided2 = true
+    else
+        colided2 = false
+    end
+
+    if ball.y <= 0 then
+        ball.dy = -ball.dy -- deflects ball down if hits upper wall
+        ball.y = 2
+    end
+
+    if ball.y >= VIRTUAL_HEIGHT - 4 then
+        ball.dy = -ball.dy -- deflects ball up if hits lower wall
+        ball.y = VIRTUAL_HEIGHT - 6
+    end
+
+    if gameState == 'play' then -- move the ball 'randomly'
+        ball:update(dt)
+    end
+
     paddle1:update(dt)
     paddle2:update(dt)
 
@@ -78,9 +108,7 @@ function love.update(dt) -- dt is delta time
         paddle2.dy = 0
     end
 
-    if gameState == 'play' then -- move the ball 'randomly'
-        ball:update(dt)
-    end
+
 end
 
 
@@ -128,8 +156,17 @@ function love.draw()
     love.graphics.print(player2Score, VIRTUAL_WIDTH / 2 + 30, VIRTUAL_HEIGHT / 3)
 
 
-    paddle1:render()
-    paddle2:render()
+    if colided1  == true then
+        paddle1:render_filled()
+    else
+        paddle1:render()
+    end
+
+    if colided2  == true then
+        paddle2:render_filled()
+    else
+        paddle2:render()
+    end
 
     ball:render(VIRTUAL_WIDTH / 2 - 2, VIRTUAL_HEIGHT / 2 - 2, 5, 5)
 
